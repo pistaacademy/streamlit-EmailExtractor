@@ -49,7 +49,24 @@ def main():
 
     elif choice == "Bulk Extractor":
         st.subheader("Bulk Extractor")
-        
+        text = st.text_area("Paste Text Here")
+        task_list = ["Emails", "URLS", "Phonenumbers"]
+        task_option = st.sidebar.multiselect('Task', task_list, default="Emails")
+        task_mapper = {
+            "Emails": nfx.extract_emails(text),
+            "URLS" : nfx.extract_urls(text),
+            "Phonenumbers" : nfx.extract_phone_numbers(text)
+        }
+        all_results = []
+        for task in task_option:
+            result = task_mapper[task]
+            all_results.append(result)
+        st.write(all_results)
+
+        with st.expander("Results As DataFrame"):
+            result_df = pd.DataFrame(all_results).T
+            result_df.columns = task_option
+            st.dataframe(result_df)
     else:
         st.subheader("About")
 
