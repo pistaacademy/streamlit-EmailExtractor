@@ -29,6 +29,9 @@ def fetch_query(query):
     r = requests.get(base_url)
     return r.text
 
+import sqlite3
+conn = sqlite3.connect('email_data.db')
+
 def main():
     menu = ["Home", "Single Extractor", "Bulk Extractor", "DataStorage", "About"]
     choice = st.sidebar.selectbox("Menu", menu)
@@ -62,6 +65,7 @@ def main():
                 with st.expander("Results As DataFrame"):
                     result_df = pd.DataFrame(all_results).T
                     result_df.columns = task_option
+                    result_df['Emails'].to_sql(name='EmailsTable', con=conn, if_exists='append')
                     st.dataframe(result_df)
                     make_downloadable_df(result_df)
 
@@ -103,6 +107,11 @@ def main():
             result_df.columns = task_option
             st.dataframe(result_df)
             make_downloadable_df(result_df)
+
+    elif choice == "DataStorage":
+        st.subheader("Data Storage of Emails")
+        new_df = pd.read_sql('SELECT * FROM EmailsTable', conn)
+        st.write(new_df)
     else:
         st.subheader("About")
 
